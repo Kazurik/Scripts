@@ -1,1 +1,27 @@
-/home/kaz/bin/laptop-screens-3tablet
+#!/bin/bash
+
+providerCount=( $(xrandr --listproviders | wc -l) )
+
+if [ $providerCount == 3 ] && [ $(xrandr -q | grep " connected" | wc -l) == 2 ]
+then
+	if [ $(xrandr -q | grep DVI | wc -l) == 0 ]
+	then
+		echo "Attaching tablet to nvidia card"
+		xrandr --setprovideroutputsource 1 0
+	 	xrandr --newmode \"1024x600_60.0\" 48.96  1024 1064 1168 1312  600 601 604 622  -HSync +Vsync
+		display=$(xrandr -q | grep DVI | awk '{ print $1}')
+		xrandr --addmode $display \"1024x600_60.0\"
+		xrandr --output LVDS-1 --auto --left-of HDMI-1 --output HDMI-1 --mode 1920x1200 --output $display --mode \"1024x600_60.0\" --right-of HDMI-1
+	fi
+
+
+	display=$(xrandr -q | grep DVI | awk '{ print $1}')
+	if [ $(xrandr -q | grep DVI | wc -l) -gt 0 ]
+	then
+		echo "Mapping tablet to $display"
+		for id in $(xinput list | grep UC-LOGIC | awk '{ print $6}' | cut -d "=" -f 2)
+		do
+			mapwizpen $id $display &
+		done
+	fi
+fi
