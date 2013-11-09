@@ -1,8 +1,10 @@
 #!/bin/bash
 
 providerCount=( $(xrandr --listproviders | wc -l) )
+nouveauPresent=( $(lsmod | grep ^nouveau | wc -l) )
 
 if [ $providerCount == 3 ] && [ $(xrandr -q | grep " connected" | wc -l) == 2 ]
+	&& [ $nouveauPresent == 1 ]
 then
 	if [ $(xrandr -q | grep DVI | wc -l) == 0 ]
 	then
